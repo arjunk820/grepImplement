@@ -1,0 +1,140 @@
+Zap! README:
+A. The title of the assignment and your name.
+    Zap! 
+    Arjun Kantamsetty
+B. The purpose of your program.
+    Design a compression program which takes in a file, compresses/decompresses
+it and saves the result by writing to an output file.
+C. Acknowledgements for any help you received.
+    None.
+D. A list of the files that you provided and a short description of what
+each file is and its purpose.
+
+HuffmanCoder.cpp:
+    Implementation of the HuffmanCoder class. Notable functions include
+encoder() and decoder(). Used std::vector in order to store data as well as the
+priority queue ADT to construct the Huffman Tree.
+
+HuffmanCoder.h:
+    Interface of the HuffmanCoder class. Lists all of the function declarations
+and data structures used by the class.
+
+main.cpp:
+    Driver of the HuffmanCoder class which instantiates an object of the class
+and calls encoder or decoder based on the command line argument.
+
+unit_tests.h:
+    Testing framework of the phaseOne functions and all cases of those 
+functions.
+
+testing.cpp:
+    Testing driver of the HuffmanCoder class. Instantiates an object of the
+HuffmanCoder class and calls encoder and decoder on specified files.
+
+sleeplessness.txt:
+    Testing file I created in order to test the encoding of the
+word "sleeplessness"
+
+new_sleeplessness.txt:
+    Output file of the decoding of the word "sleeplessness". Diffed against
+sleeplessness.txt
+
+my_output.zap:
+    Output of encoding of sleeplessness case
+
+their_sleeplessness.txt:
+    Output file of the reference implementation running zap and unzap on
+sleeplessness. Diffed against new_sleeplessness.txt
+
+E. Instructions on how to compile and run your program.
+    Compile:
+        make zap
+    Run:
+        ./zap [zap | unzap] inputFile outputFile
+
+F. An outline of the data structures and algorithms used. There should be
+a number of data structures for this assignment. Discuss each one, and
+why it was the correct choice for the task at hand. Additionally, pick
+a couple algorithms that you relied on to complete this assignment.
+    For storing and manipulating data, I used two vectors of std::string, one
+priority queue of std::vector, and one array of integers. 
+    
+- int array:
+    I stored the frequency counts of each ASCII value in this array, 
+which means I didn't have to resize the array since there are a finite number 
+of ASCII values (256). Chars are also integers "under the hood" of C++ so 
+incrementing the frequency was easier since I used the array like a map, where 
+the char was the key and the frequency I was accessing/updating was the value, 
+expect I converted the char to int before it.
+
+- priority queue of std::vector of HuffmanTreeNodes:
+    Used a priority queue composed of a vector of HuffmanTreeNodes and the
+given Node comparator function in order to build the Huffman tree. I kept
+comparing nodes against each other until I got the root of the tree (which
+was the "highest priority" node).
+
+- std::vectors of std::string:
+    I used two. The first I used for encoder() and its purpose was to store
+the bit codes of each occurring character. The second one I used for decoder()
+and its purpose is to store the returned value of readFile() from BinaryIO.
+
+G. Details and an explanation of how you tested the various parts of
+assignment and the program as a whole. You may reference the testing
+files that you submitted to aid in your explanation.
+    For testing, I created a testing main called testing.cpp. As I wrote code,
+I tested through the testing main by compiling (make test_zap) and running it.
+I was able to catch a lot this way since I constantly checking outputs. One
+error which I was able to catch was that I was using more bits to compress a
+file then the spec. So I went back through my encoder() and printed each output
+by running the testing main. I found where the problem was and I fixed it.
+(I hadn't set the parent node's frequency value correctly when I pushed it onto
+the priority queue). Additionally, I tested decoding through the testing main
+and I discovered an issue where in the function designed to read the bits and
+convert them back to text, the string I wanted to return (text) wasn't
+populating as I recursed. I used std::cout to check where the program flow was
+ending and also checked if the root I was giving the program was empty in the
+first place. I also built a print_tree() function in order to visualize the
+tree and created "sleeplessness.txt" because I knew what that tree actually
+looked like and wanted to go through the program flow with that tree. I
+discovered the program was not able to recurse left after recursing right. I
+fixed this issue as well, which was that the conditional statement flow
+was incorrect, and included a temp->isLeaf() check in both the left recurse and
+right recurse to solve the problem. Ultimately though, I wouldn't have been
+able to fix this issue if not for the testing main which I plan to use for
+gerp and future coding projects. The last big error I had was an issue where
+I wasn't able to write to file properly during decoder(). I went to OH to ask
+questions about it and after sitting in OH for more than a few hours, I
+noticed that I wasn't opening the outStream properly with Ellis. He told me 
+that I needed another open_or_die() for outStream specifically because I was
+opening a file I was writing to versus reading from. So after implementing that
+change my code began running successfully. I finally wrote main.cpp and after
+working to make sure the logic for reading in command line arguments was good,
+I began testing edge cases I thought of and that were detailed in the spec
+and playing with the reference implementation to make sure my code did the 
+same thing. After reviewing my deliverables and finishing up README, in-line
+commenting, and function contracts, I'm ready to submit and go home for break!
+
+H. Please let us know approximately how many hours you spent working
+on this project. This should include both weeks one and two.
+    20-25 hours roughly.
+
+Phase One README:
+    -count_freqs(): To count frequency, I created a vector to store frequency
+counts for all 256 ASCII characters. Then, incremented the vector as I read in
+values. For print, I just printed by traversing through the vector.
+
+    -serialize_tree(): Using the root given, I recurse through and add to a
+string variable I created. I use the call stack in order to use recursion and
+get the complete string when the call stack completes the original call.
+
+    -deserialize_tree(): Using the string, I check if the following character
+indicates a internode or leaf node needs to be created. I create the node, then
+if an internode, I continue recursing through by creating the left and the
+right until when returning to the original call, the entire string has been
+read in.
+
+    -deserialize_helper(): It helps deserialize_tree() by doing most of the
+work. deserialize_tree just creates a stringstream for the helper to use.
+
+    -delete_tree(): deletes the Huffman Tree and its nodes to deallocate the
+memory. Uses post-order traversal.
